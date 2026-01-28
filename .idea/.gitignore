@@ -8,3 +8,10 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+
+git push origin
+git push gitea
+
+git push origin main
+git push gitea main
+
