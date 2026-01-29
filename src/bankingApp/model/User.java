@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 /**
  * User class representing a bank customer
- * Phase 1: Basic structure setup for future phases
+ * Phase 2: Complete implementation with cash and account management
  */
 public class User {
     private String name;
@@ -45,7 +45,7 @@ public class User {
      * @return true if deposit successful, false otherwise
      */
     public boolean depositCashToSavings(BigDecimal amount) {
-        if (cash.compareTo(amount) >= 0) {
+        if (amount.compareTo(BigDecimal.ZERO) > 0 && cash.compareTo(amount) >= 0) {
             cash = cash.subtract(amount);
             savingsAccount.deposit(amount);
             return true;

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 /**
  * Abstract base class for all account types
- * Phase 1: Basic structure setup for future phases
+ * Phase 2: Complete implementation with interest calculation and account type methods
  */
 public abstract class Account {
     protected BigDecimal balance;
@@ -26,15 +26,36 @@ public abstract class Account {
     }
     
     /**
+     * Calculate and apply interest to the account
+     */
+    public abstract void calculateInterest();
+    
+    /**
+     * Get the type of account
+     * @return Account type as string
+     */
+    public abstract String getAccountType();
+    
+    /**
      * Deposit money into the account
      * @param amount Amount to deposit
      */
-    public abstract void deposit(BigDecimal amount);
+    public void deposit(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) > 0) {
+            balance = balance.add(amount);
+        }
+    }
     
     /**
      * Withdraw money from the account
      * @param amount Amount to withdraw
      * @return true if withdrawal successful, false otherwise
      */
-    public abstract boolean withdraw(BigDecimal amount);
+    public boolean withdraw(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) > 0 && balance.compareTo(amount) >= 0) {
+            balance = balance.subtract(amount);
+            return true;
+        }
+        return false;
+    }
 }

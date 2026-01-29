@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * Investment Account implementation
- * Phase 1: Basic structure setup for future phases
+ * Phase 2: Complete implementation with fund management and interest calculation
  */
 public class InvestmentAccount extends Account {
     private Map<Fund, BigDecimal> investments;
@@ -30,17 +30,21 @@ public class InvestmentAccount extends Account {
     }
     
     @Override
-    public void deposit(BigDecimal amount) {
-        balance = balance.add(amount);
+    public void calculateInterest() {
+        // Calculate appreciation on all fund investments
+        for (Map.Entry<Fund, BigDecimal> entry : investments.entrySet()) {
+            Fund fund = entry.getKey();
+            BigDecimal currentAmount = entry.getValue();
+            if (currentAmount.compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal appreciation = currentAmount.multiply(fund.getAppreciationRate());
+                investments.put(fund, currentAmount.add(appreciation));
+            }
+        }
     }
     
     @Override
-    public boolean withdraw(BigDecimal amount) {
-        if (balance.compareTo(amount) >= 0) {
-            balance = balance.subtract(amount);
-            return true;
-        }
-        return false;
+    public String getAccountType() {
+        return "Investment";
     }
     
     /**
@@ -50,38 +54,13 @@ public class InvestmentAccount extends Account {
      * @return true if investment successful, false otherwise
      */
     public boolean investInFund(Fund fund, BigDecimal amount) {
-        if (balance.compareTo(amount) >= 0) {
+        if (amount.compareTo(BigDecimal.ZERO) > 0 && balance.compareTo(amount) >= 0) {
             balance = balance.subtract(amount);
             BigDecimal currentInvestment = investments.get(fund);
             investments.put(fund, currentInvestment.add(amount));
             return true;
         }
         return false;
-    }
-    
-    /**
-     * Get investment amount in a specific fund
-     * @param fund The fund to check
-     * @return Amount invested in the fund
-     */
-    public BigDecimal getInvestmentInFund(Fund fund) {
-        return investments.get(fund);
-    }
-    
-    /**
-     * Apply appreciation to all fund investments
-     */
-    public void applyFundAppreciation() {
-        for (Map.Entry<Fund, BigDecimal> entry : investments.entrySet()) {
-            Fund fund = entry.getKey();
-            BigDecimal currentAmount = entry.getValue();
-            if (currentAmount.compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal appreciation = currentAmount.multiply(
-                    new BigDecimal(fund.getAppreciationRate())
-                );
-                investments.put(fund, currentAmount.add(appreciation));
-            }
-        }
     }
     
     /**
@@ -100,12 +79,21 @@ public class InvestmentAccount extends Account {
     }
     
     /**
-     * Get total amount invested across all funds
-     * @return Total investment amount
+     * Get total value of all investments
+     * @return Total investment value across all funds
      */
-    public BigDecimal getTotalInvestments() {
+    public BigDecimal getTotalInvestmentValue() {
         return investments.values().stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    
+    /**
+     * Get investment amount in a specific fund
+     * @param fund The fund to check
+     * @return Amount invested in the fund
+     */
+    public BigDecimal getInvestmentInFund(Fund fund) {
+        return investments.get(fund);
     }
     
     public Map<Fund, BigDecimal> getAllInvestments() {
