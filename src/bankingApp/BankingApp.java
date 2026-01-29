@@ -17,7 +17,7 @@ public class BankingApp {
         BankingService bankingService = new BankingService(scanner);
         
         // Start the banking application
-        bankingService.start();
+        bankingService.run();
         
         // Close scanner when application ends
         scanner.close();

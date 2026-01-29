@@ -40,24 +40,77 @@ public class BankingService {
     }
     
     /**
-     * Main application loop
+     * Main application loop with session management
      */
-    public void start() {
+    public void run() {
         System.out.println("Welcome to Green Day Bank!");
+        boolean running = true;
         
-        while (true) {
-            if (!isLoggedIn) {
-                if (!login()) {
-                    break; // EOF encountered during login
+        while (running) {
+            // Login phase
+            if (!login()) {
+                break; // EOF or exit
+            }
+            
+            // User session phase
+            boolean loggedIn = true;
+            while (loggedIn) {
+                displayMenu();
+                
+                System.out.print("Please select an option: ");
+                
+                if (!scanner.hasNextLine()) {
+                    running = false;
+                    break;
                 }
-            } else {
-                if (!showMenuAndHandleChoice()) {
-                    break; // User chose to exit or EOF encountered
+                
+                String input = scanner.nextLine().trim();
+                
+                try {
+                    int choice = Integer.parseInt(input);
+                    
+                    switch (choice) {
+                        case 1:
+                            showBalance();
+                            break;
+                        case 2:
+                            depositMoney();
+                            break;
+                        case 3:
+                            withdrawMoney();
+                            break;
+                        case 4:
+                            sendMoney();
+                            break;
+                        case 5:
+                            investInFunds();
+                            break;
+                        case 6:
+                            transferBetweenAccounts();
+                            break;
+                        case 7:
+                            withdrawAllInvestments();
+                            break;
+                        case 8: // Logout
+                            loggedIn = false;
+                            System.out.println("Logged out successfully.");
+                            currentUser = null;
+                            isLoggedIn = false;
+                            break;
+                        case 9: // Exit
+                            loggedIn = false;
+                            running = false;
+                            System.out.println("Thank you for using Green Day Bank!");
+                            break;
+                        default:
+                            System.out.println("Invalid option. Please select a number between 1 and 9.");
+                            break;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input. Please enter a number between 1 and 9.");
                 }
             }
         }
-        
-        System.out.println("Thank you for using Green Day Bank!");
     }
     
     /**
@@ -65,49 +118,26 @@ public class BankingService {
      * @return false if EOF encountered, true otherwise
      */
     private boolean login() {
-        System.out.print("Please enter your name to login: ");
-        
-        // Handle EOF gracefully
-        if (!scanner.hasNextLine()) {
-            return false;
-        }
-        
-        String username = scanner.nextLine().trim();
-        
-        if (users.containsKey(username)) {
-            currentUser = users.get(username);
-            isLoggedIn = true;
-            System.out.println("Welcome, " + username + "!");
-            return true;
-        } else {
-            System.out.println("Invalid username. Please try again.");
-            System.out.println("Valid users are: Alice, Bob, Charlie, Diana");
-            return true;
-        }
-    }
-    
-    /**
-     * Display menu and handle user choice
-     * @return false if user chooses to exit or EOF encountered, true otherwise
-     */
-    private boolean showMenuAndHandleChoice() {
-        displayMenu();
-        
-        System.out.print("Please select an option: ");
-        
-        // Handle EOF gracefully
-        if (!scanner.hasNextLine()) {
-            return false;
-        }
-        
-        String input = scanner.nextLine().trim();
-        
-        try {
-            int choice = Integer.parseInt(input);
-            return handleMenuChoice(choice);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number between 1 and 9.");
-            return true;
+        while (true) {
+            System.out.print("Please enter your name to login: ");
+            
+            // Handle EOF gracefully
+            if (!scanner.hasNextLine()) {
+                return false;
+            }
+            
+            String username = scanner.nextLine().trim();
+            
+            if (users.containsKey(username)) {
+                currentUser = users.get(username);
+                isLoggedIn = true;
+                System.out.println("Welcome, " + username + "!");
+                return true;
+            } else {
+                System.out.println("Invalid username. Please try again.");
+                System.out.println("Valid users are: Alice, Bob, Charlie, Diana");
+                // Continue the loop to ask for username again
+            }
         }
     }
     
@@ -125,46 +155,6 @@ public class BankingService {
         System.out.println("7. Withdraw all investments");
         System.out.println("8. Logout");
         System.out.println("9. Exit");
-    }
-    
-    /**
-     * Handle the selected menu choice
-     * @param choice The menu option selected by user
-     * @return false if user chooses to exit, true otherwise
-     */
-    private boolean handleMenuChoice(int choice) {
-        switch (choice) {
-            case 1:
-                showBalance();
-                break;
-            case 2:
-                depositMoney();
-                break;
-            case 3:
-                withdrawMoney();
-                break;
-            case 4:
-                sendMoney();
-                break;
-            case 5:
-                investInFunds();
-                break;
-            case 6:
-                transferBetweenAccounts();
-                break;
-            case 7:
-                withdrawAllInvestments();
-                break;
-            case 8:
-                logout();
-                break;
-            case 9:
-                return false; // Exit application
-            default:
-                System.out.println("Invalid option. Please select a number between 1 and 9.");
-                break;
-        }
-        return true;
     }
     
     /**
@@ -570,14 +560,5 @@ public class BankingService {
             BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
             System.out.println("  " + fund + ": $" + fundAmount);
         }
-    }
-    
-    /**
-     * Handle user logout
-     */
-    private void logout() {
-        System.out.println("Goodbye, " + currentUser.getName() + "!");
-        currentUser = null;
-        isLoggedIn = false;
     }
 }
