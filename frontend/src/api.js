@@ -8,6 +8,7 @@
  * @returns {Promise<any>} - Response data
  */
 export async function getJson(path) {
+  console.log('Fetching:', path);
   const response = await fetch(path, {
     method: 'GET',
     headers: {
@@ -15,12 +16,17 @@ export async function getJson(path) {
     }
   });
   
+  console.log('Response status:', response.status);
+  
   if (!response.ok) {
     const error = await response.json();
+    console.error('Error response:', error);
     throw new Error(error.error?.message || 'Request failed');
   }
   
-  return response.json();
+  const data = await response.json();
+  console.log('Response data:', data);
+  return data;
 }
 
 /**

@@ -1,12 +1,67 @@
-# Green Day Bank
+# 🏦 Green Day Bank
 
-Full-stack banking application with CLI, REST API, and web interface.
+A full-stack banking application demonstrating modern software architecture with three distinct layers: a command-line interface for automated testing, a RESTful API server for backend operations, and a responsive web frontend for user interaction.
 
-## 🚀 Quick Start
+## 📖 About This Project
 
-### Run Everything (API + Frontend)
+**Green Day Bank** is a comprehensive banking system that showcases:
+- **Multi-tier Architecture**: Separation of CLI, API, and UI layers
+- **Account Management**: Support for savings and investment accounts with multiple users
+- **Investment Features**: Three risk-level investment funds (LOW_RISK 2%, MEDIUM_RISK 5%, HIGH_RISK 10%)
+- **Interest Calculation**: Automatic interest application on savings and investments
+- **Money Transfers**: Between users and between account types (savings ↔ investment)
+- **RESTful API Design**: Clean JSON endpoints with proper error handling
+- **Modern Web UI**: Interactive dashboard with real-time balance updates
+
+Perfect for learning banking system concepts, REST API development, and full-stack integration.
+
+---
+
+## 🚀 Quick Start - Run Locally
+
+### Prerequisites
+- **Java 21** (for API server)
+- **Node.js & npm** (for web frontend)
+- **Git** (for cloning the repository)
+
+### Step 1: Clone the Repository
 ```bash
-# On Windows
+git clone https://gitea.kood.tech/hashimali/bankingApp.git
+cd bankingApp
+```
+
+### Step 2: Start the API Server
+Open a terminal and run:
+```bash
+# Windows
+cd api-server
+$env:PORT = "8080"
+.\gradlew.bat run
+
+# Linux/macOS
+cd api-server
+export PORT=8080
+./gradlew run
+```
+
+The API server will start on **http://localhost:8080**
+
+### Step 3: Start the Web Frontend
+Open a **new terminal** and run:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The web app will start on **http://localhost:5173**
+
+### Step 4: Open Your Browser
+Go to **http://localhost:5173** and select a user (Alice, Bob, Charlie, or Diana) to log in.
+
+### Quick Commands (Alternative)
+```bash
+# On Windows - Run both API and Frontend together
 .\scripts\dev.ps1
 
 # On Unix/Linux/macOS
@@ -14,7 +69,7 @@ make dev
 ```
 
 This starts:
-- API Server on `http://localhost:7070`
+- API Server on `http://localhost:8080`
 - Web Frontend on `http://localhost:5173`
 
 ---
