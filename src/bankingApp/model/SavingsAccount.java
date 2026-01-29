@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * Phase 2: Complete implementation with interest calculation
  */
 public class SavingsAccount extends Account {
-    private static final BigDecimal INTEREST_RATE = new BigDecimal("0.01"); // 1%
+    private final BigDecimal INTEREST_RATE = new BigDecimal("0.01"); // 1%
     
     public SavingsAccount() {
         super();

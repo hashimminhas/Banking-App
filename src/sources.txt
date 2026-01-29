@@ -1,9 +1,0 @@
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\Main.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\BankingApp.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\exception\InvalidAmountException.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\model\Account.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\model\Fund.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\model\InvestmentAccount.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\model\SavingsAccount.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\model\User.java
-C:\Users\Hashim Ali\IdeaProjects\Banking-App\src\bankingApp\service\BankingService.java
