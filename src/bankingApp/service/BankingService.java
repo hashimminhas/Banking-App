@@ -145,6 +145,14 @@ public class BankingService {
         System.out.println("Savings account balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
         System.out.println("Investment account balance:");
         System.out.println("* Not Invested: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
+        
+        // Display individual fund investments
+        for (Fund fund : Fund.values()) {
+            BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
+            if (fundAmount.compareTo(BigDecimal.ZERO) > 0) {
+                System.out.println("* " + fund.name() + ": $" + formatCurrency(fundAmount));
+            }
+        }
     }
     
     private void depositMoney() {
@@ -375,7 +383,6 @@ public class BankingService {
     }
     
     private void withdrawAllInvestments() {
-        currentUser.getInvestmentAccount().calculateInterest();
         currentUser.getInvestmentAccount().withdrawAllInvestments();
         System.out.println("All investments have been withdrawn and added to your investment account balance.");
     }

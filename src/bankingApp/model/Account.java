@@ -44,7 +44,7 @@ public abstract class Account {
      */
     public void deposit(BigDecimal amount) throws InvalidAmountException {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Amount must be positive");
+            throw new InvalidAmountException("amount must be positive");
         }
         balance = balance.add(amount);
     }
@@ -56,7 +56,7 @@ public abstract class Account {
      */
     public void withdraw(BigDecimal amount) throws InvalidAmountException {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Amount must be positive");
+            throw new InvalidAmountException("amount must be positive");
         }
         if (amount.compareTo(balance) > 0) {
             throw new InvalidAmountException("Insufficient funds");
