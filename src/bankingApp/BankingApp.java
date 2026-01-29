@@ -10,6 +10,7 @@ import java.util.Scanner;
 public class BankingApp {
     
     public static void main(String[] args) {
+        System.out.flush();
         Scanner scanner = new Scanner(System.in);
         BankingService bankingService = new BankingService(scanner);
         bankingService.run();
