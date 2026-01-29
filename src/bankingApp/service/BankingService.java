@@ -5,13 +5,12 @@ import bankingApp.model.Fund;
 import bankingApp.exception.InvalidAmountException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 /**
  * Banking Service handles all CLI interactions and banking logic
- * Phase 4: Complete implementation with core banking operations
  */
 public class BankingService {
     
@@ -22,24 +21,16 @@ public class BankingService {
     
     public BankingService(Scanner scanner) {
         this.scanner = scanner;
-        this.users = new HashMap<>();
+        this.users = new LinkedHashMap<>();
         this.currentUser = null;
         this.currencyFormatter = new DecimalFormat("#0.00");
-        
-        // Initialize all 4 users with $1000 cash each
         initializeUsers();
     }
     
-    /**
-     * Format BigDecimal amount to currency string with 2 decimal places
-     */
     private String formatCurrency(BigDecimal amount) {
         return currencyFormatter.format(amount);
     }
     
-    /**
-     * Initialize the 4 users for the banking system
-     */
     private void initializeUsers() {
         users.put("Alice", new User("Alice"));
         users.put("Bob", new User("Bob"));
@@ -47,24 +38,20 @@ public class BankingService {
         users.put("Diana", new User("Diana"));
     }
     
-    /**
-     * Main application loop with session management
-     */
     public void run() {
         boolean running = true;
         
         while (running) {
-            // Login phase
             if (!login()) {
-                break; // EOF or exit
+                break;
             }
             
-            // User session phase
             boolean loggedIn = true;
             while (loggedIn) {
                 displayMenu();
                 
                 System.out.print("Enter your choice: ");
+                System.out.flush();
                 
                 if (!scanner.hasNextLine()) {
                     running = false;
@@ -98,12 +85,12 @@ public class BankingService {
                         case 7:
                             withdrawAllInvestments();
                             break;
-                        case 8: // Logout
+                        case 8:
                             loggedIn = false;
                             System.out.println("You have been logged out.");
                             currentUser = null;
                             break;
-                        case 9: // Exit
+                        case 9:
                             loggedIn = false;
                             running = false;
                             System.out.println("Thank you for using our banking app. Goodbye!");
@@ -113,21 +100,17 @@ public class BankingService {
                             break;
                     }
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid input. Please enter a number between 1 and 9.");
+                    System.out.println("Invalid choice. Please try again.");
                 }
             }
         }
     }
     
-    /**
-     * Handle user login process
-     * @return false if EOF encountered, true otherwise
-     */
     private boolean login() {
         while (true) {
             System.out.print("Enter your name to login: ");
+            System.out.flush();
             
-            // Handle EOF gracefully
             if (!scanner.hasNextLine()) {
                 return false;
             }
@@ -140,16 +123,13 @@ public class BankingService {
                 return true;
             } else {
                 System.out.println("User not found. Please try again.");
-                // Continue the loop to ask for username again
             }
         }
     }
     
-    /**
-     * Display the main banking menu
-     */
     private void displayMenu() {
-        System.out.println("\n--- Banking App Menu ---");
+        System.out.println();
+        System.out.println("--- Banking App Menu ---");
         System.out.println("1. Show balance");
         System.out.println("2. Deposit money");
         System.out.println("3. Withdraw money");
@@ -161,36 +141,19 @@ public class BankingService {
         System.out.println("9. Exit");
     }
     
-    /**
-     * Menu Option 1: Show Balance
-     * Displays cash, savings (with interest), investment (with gains), and fund details
-     */
     private void showBalance() {
-        // Calculate interest on savings FIRST
         currentUser.getSavingsAccount().calculateInterest();
-        
-        // Calculate gains on investments FIRST  
         currentUser.getInvestmentAccount().calculateInterest();
         
-        // Display savings account balance
         System.out.println("Savings account balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
-        
-        // Display investment account balance
         System.out.println("Investment account balance:");
-        
-        // Display not invested amount
-        BigDecimal notInvested = currentUser.getInvestmentAccount().getBalance();
-        System.out.println("* Not Invested: $" + formatCurrency(notInvested));
+        System.out.println("* Not Invested: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
     }
     
-    /**
-     * Menu Option 2: Deposit Money
-     * Transfers money from cash to savings account
-     */
     private void depositMoney() {
         System.out.print("Enter amount to deposit to savings account: $");
+        System.out.flush();
         
-        // Handle EOF gracefully
         if (!scanner.hasNextLine()) {
             return;
         }
@@ -200,35 +163,28 @@ public class BankingService {
         try {
             BigDecimal amount = new BigDecimal(input);
             
-            // Validate positive amount
             if (amount.compareTo(BigDecimal.ZERO) <= 0) {
                 System.out.println("Deposit failed: amount must be positive");
                 return;
             }
             
-            // Check if user has enough cash
             if (currentUser.getCash().compareTo(amount) < 0) {
                 System.out.println("Deposit failed: Insufficient cash on hand");
                 return;
             }
             
-            // Perform deposit
             currentUser.depositCashToSavings(amount);
             System.out.println("Deposit successful.");
             
         } catch (NumberFormatException e) {
-            // Invalid input, return to menu without message
+            // Invalid input - just return to menu
         }
     }
     
-    /**
-     * Menu Option 3: Withdraw Money  
-     * Transfers money from savings to cash
-     */
     private void withdrawMoney() {
         System.out.print("Enter amount to withdraw from savings account: $");
+        System.out.flush();
         
-        // Handle EOF gracefully
         if (!scanner.hasNextLine()) {
             return;
         }
@@ -238,62 +194,46 @@ public class BankingService {
         try {
             BigDecimal amount = new BigDecimal(input);
             
-            // Attempt to withdraw from savings
             currentUser.getSavingsAccount().withdraw(amount);
             System.out.println("Withdrawal successful.");
             
         } catch (InvalidAmountException e) {
             System.out.println("Withdrawal failed: " + e.getMessage());
         } catch (NumberFormatException e) {
-            // Invalid input, return to menu without message
+            // Invalid input - just return to menu
         }
     }
     
-    /**
-     * Menu Option 4: Send Money to Person
-     * Transfers money from current user's savings to another user's savings
-     */
     private void sendMoney() {
-        System.out.println("\n=== Send Money ===");
-        
-        // Show list of other users
-        System.out.println("Available users:");
+        // Show available recipients (other users)
+        System.out.println("Available recipients:");
         for (String name : users.keySet()) {
             if (!name.equals(currentUser.getName())) {
-                System.out.println("- " + name);
+                System.out.println(name);
             }
         }
         
-        System.out.print("Enter recipient name: ");
+        System.out.print("Enter recipient's name: ");
+        System.out.flush();
         
-        // Handle EOF gracefully
         if (!scanner.hasNextLine()) {
-            System.out.println("Operation cancelled.");
             return;
         }
         
         String recipientName = scanner.nextLine().trim();
         
-        // Validate recipient exists and is not current user
-        if (!users.containsKey(recipientName)) {
-            System.out.println("User not found!");
-            return;
-        }
-        
-        if (recipientName.equals(currentUser.getName())) {
-            System.out.println("Cannot send money to yourself!");
+        // Validate recipient
+        if (!users.containsKey(recipientName) || recipientName.equals(currentUser.getName())) {
+            System.out.println("Invalid recipient.");
             return;
         }
         
         User recipient = users.get(recipientName);
         
-        // Show current savings balance
-        System.out.println("Your current savings balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
         System.out.print("Enter amount to send: $");
+        System.out.flush();
         
-        // Handle EOF gracefully
         if (!scanner.hasNextLine()) {
-            System.out.println("Operation cancelled.");
             return;
         }
         
@@ -302,171 +242,115 @@ public class BankingService {
         try {
             BigDecimal amount = new BigDecimal(input);
             
-            // Validate amount is positive
             if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                System.out.println("Amount must be positive.");
+                System.out.println("Failed to send money: amount must be positive");
                 return;
             }
             
-            // Check if current user has sufficient funds in savings
             if (currentUser.getSavingsAccount().getBalance().compareTo(amount) < 0) {
-                System.out.println("Insufficient funds in savings account.");
+                System.out.println("Failed to send money: Insufficient funds");
                 return;
             }
             
-            // Perform the transfer
-            try {
-                currentUser.getSavingsAccount().withdraw(amount);
-                recipient.getSavingsAccount().deposit(amount);
-                
-                System.out.println("Successfully sent $" + amount + " to " + recipientName + ".");
-                System.out.println("Your new savings balance: $" + currentUser.getSavingsAccount().getBalance());
-                
-            } catch (InvalidAmountException e) {
-                System.out.println("Transfer failed: " + e.getMessage());
-            }
+            currentUser.getSavingsAccount().withdraw(amount);
+            recipient.getSavingsAccount().deposit(amount);
+            System.out.println("Sent $" + amount.intValue() + " to " + recipientName);
             
+        } catch (InvalidAmountException e) {
+            System.out.println("Failed to send money: " + e.getMessage());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid amount. Please enter a valid number.");
+            // Invalid input - just return to menu
         }
     }
     
-    /**
-     * Menu Option 6: Transfer Between Accounts
-     * Transfers money between user's savings and investment accounts
-     */
     private void transferBetweenAccounts() {
-        System.out.println("\n=== Transfer Between Accounts ===");
-        System.out.println("1. Transfer from Savings to Investment");
-        System.out.println("2. Transfer from Investment to Savings");
-        System.out.print("Select transfer direction (1 or 2): ");
+        System.out.println("1. Transfer from savings to investment");
+        System.out.println("2. Transfer from investment to savings");
+        System.out.print("Enter your choice: ");
+        System.out.flush();
         
-        // Handle EOF gracefully
         if (!scanner.hasNextLine()) {
-            System.out.println("Operation cancelled.");
             return;
         }
         
         String choice = scanner.nextLine().trim();
         
-        boolean fromSavingsToInvestment;
-        BigDecimal sourceBalance;
-        String sourceAccount;
-        String destinationAccount;
-        
-        if ("1".equals(choice)) {
-            fromSavingsToInvestment = true;
-            sourceBalance = currentUser.getSavingsAccount().getBalance();
-            sourceAccount = "Savings";
-            destinationAccount = "Investment";
-        } else if ("2".equals(choice)) {
-            fromSavingsToInvestment = false;
-            sourceBalance = currentUser.getInvestmentAccount().getBalance();
-            sourceAccount = "Investment";
-            destinationAccount = "Savings";
-        } else {
-            System.out.println("Invalid choice. Please select 1 or 2.");
-            return;
-        }
-        
-        // Show source account balance
-        System.out.println("Current " + sourceAccount + " account balance: $" + formatCurrency(sourceBalance));
         System.out.print("Enter amount to transfer: $");
+        System.out.flush();
         
-        // Handle EOF gracefully
         if (!scanner.hasNextLine()) {
-            System.out.println("Operation cancelled.");
             return;
         }
         
         String input = scanner.nextLine().trim();
         
-        try {
-            BigDecimal amount = new BigDecimal(input);
-            
-            // Validate amount is positive
-            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                System.out.println("Amount must be positive.");
-                return;
-            }
-            
-            // Check if source account has sufficient funds
-            if (sourceBalance.compareTo(amount) < 0) {
-                System.out.println("Insufficient funds in " + sourceAccount + " account.");
-                return;
-            }
-            
-            // Perform the transfer
-            try {
-                if (fromSavingsToInvestment) {
-                    currentUser.getSavingsAccount().withdraw(amount);
-                    currentUser.getInvestmentAccount().deposit(amount);
-                } else {
-                    currentUser.getInvestmentAccount().withdraw(amount);
-                    currentUser.getSavingsAccount().deposit(amount);
-                }
-                
-                System.out.println("Successfully transferred $" + formatCurrency(amount) + " from " + sourceAccount + " to " + destinationAccount + ".");
-                System.out.println("New " + sourceAccount + " balance: $" + 
-                    formatCurrency(fromSavingsToInvestment ? currentUser.getSavingsAccount().getBalance() : currentUser.getInvestmentAccount().getBalance()));
-                System.out.println("New " + destinationAccount + " balance: $" + 
-                    formatCurrency(fromSavingsToInvestment ? currentUser.getInvestmentAccount().getBalance() : currentUser.getSavingsAccount().getBalance()));
-                
-            } catch (InvalidAmountException e) {
-                System.out.println("Transfer failed: " + e.getMessage());
-            }
-            
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid amount. Please enter a valid number.");
-        }
-    }
-    
-    /**
-     * Menu Option 5: Invest in Funds
-     * Allows user to invest money from investment account into specific funds
-     */
-    private void investInFunds() {
-        System.out.println("\n=== Invest in Funds ===");
-        System.out.println("Investment account balance: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
-        
-        // Show available funds
-        System.out.println("\nAvailable funds:");
-        System.out.println("1. LOW_RISK (2%)");
-        System.out.println("2. MEDIUM_RISK (5%)");
-        System.out.println("3. HIGH_RISK (10%)");
-        
-        System.out.print("Select fund (1-3): ");
-        
-        // Handle EOF gracefully
-        if (!scanner.hasNextLine()) {
-            System.out.println("Operation cancelled.");
+        if (!choice.equals("1") && !choice.equals("2")) {
+            System.out.println("Invalid choice.");
             return;
         }
         
-        String fundChoice = scanner.nextLine().trim();
+        try {
+            BigDecimal amount = new BigDecimal(input);
+            
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("Transfer failed: amount must be positive");
+                return;
+            }
+            
+            if (choice.equals("1")) {
+                // Savings to investment
+                if (currentUser.getSavingsAccount().getBalance().compareTo(amount) < 0) {
+                    System.out.println("Transfer failed: Insufficient funds");
+                    return;
+                }
+                currentUser.getSavingsAccount().withdraw(amount);
+                currentUser.getInvestmentAccount().deposit(amount);
+                System.out.println("Successfully transferred $" + amount.intValue() + " to investment account.");
+            } else {
+                // Investment to savings
+                if (currentUser.getInvestmentAccount().getBalance().compareTo(amount) < 0) {
+                    System.out.println("Transfer failed: Insufficient funds");
+                    return;
+                }
+                currentUser.getInvestmentAccount().withdraw(amount);
+                currentUser.getSavingsAccount().deposit(amount);
+                System.out.println("Successfully transferred $" + amount.intValue() + " to savings account.");
+            }
+            
+        } catch (InvalidAmountException e) {
+            System.out.println("Transfer failed: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            // Invalid input - just return to menu
+        }
+    }
+    
+    private void investInFunds() {
+        System.out.println("Available funds:");
+        System.out.println("LOW_RISK");
+        System.out.println("MEDIUM_RISK");
+        System.out.println("HIGH_RISK");
+        
+        System.out.print("Enter fund to invest in: ");
+        System.out.flush();
+        
+        if (!scanner.hasNextLine()) {
+            return;
+        }
+        
+        String fundName = scanner.nextLine().trim();
         
         Fund selectedFund;
-        switch (fundChoice) {
-            case "1":
-                selectedFund = Fund.LOW_RISK;
-                break;
-            case "2":
-                selectedFund = Fund.MEDIUM_RISK;
-                break;
-            case "3":
-                selectedFund = Fund.HIGH_RISK;
-                break;
-            default:
-                System.out.println("Invalid fund selection. Please choose 1, 2, or 3.");
-                return;
+        try {
+            selectedFund = Fund.valueOf(fundName);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid fund.");
+            return;
         }
         
-        System.out.println("Selected: " + selectedFund);
         System.out.print("Enter amount to invest: $");
+        System.out.flush();
         
-        // Handle EOF gracefully
         if (!scanner.hasNextLine()) {
-            System.out.println("Operation cancelled.");
             return;
         }
         
@@ -475,74 +359,27 @@ public class BankingService {
         try {
             BigDecimal amount = new BigDecimal(input);
             
-            // Validate amount is positive
             if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                System.out.println("Amount must be positive.");
+                System.out.println("Failed to invest: amount must be positive");
                 return;
             }
             
-            // Check if user has sufficient funds in investment account
             if (currentUser.getInvestmentAccount().getBalance().compareTo(amount) < 0) {
-                System.out.println("Insufficient funds in investment account.");
+                System.out.println("Failed to invest: Insufficient funds");
                 return;
             }
             
-            // Perform the investment
-            boolean success = currentUser.getInvestmentAccount().investInFund(selectedFund, amount);
-            
-            if (success) {
-                System.out.println("Successfully invested $" + formatCurrency(amount) + " in " + selectedFund + ".");
-                System.out.println("New investment account balance: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
-                System.out.println("Amount in " + selectedFund + ": $" + 
-                    formatCurrency(currentUser.getInvestmentAccount().getInvestmentInFund(selectedFund)));
-            } else {
-                System.out.println("Investment failed. Please try again.");
-            }
+            currentUser.getInvestmentAccount().investInFund(selectedFund, amount);
+            System.out.println("Successfully invested $" + amount.intValue() + " in " + fundName + " fund");
             
         } catch (NumberFormatException e) {
-            System.out.println("Invalid amount. Please enter a valid number.");
+            // Invalid input - just return to menu
         }
     }
     
-    /**
-     * Menu Option 7: Withdraw All Investments
-     * Calculates total fund value with appreciation and moves all back to investment account
-     */
     private void withdrawAllInvestments() {
-        System.out.println("\n=== Withdraw All Investments ===");
-        
-        // Calculate appreciation on all funds first
         currentUser.getInvestmentAccount().calculateInterest();
-        
-        // Show current fund breakdown
-        System.out.println("Current fund investments:");
-        BigDecimal totalFundValue = BigDecimal.ZERO;
-        
-        for (Fund fund : Fund.values()) {
-            BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
-            System.out.println("  " + fund + ": $" + formatCurrency(fundAmount));
-            totalFundValue = totalFundValue.add(fundAmount);
-        }
-        
-        System.out.println("Total fund value: $" + formatCurrency(totalFundValue));
-        
-        if (totalFundValue.compareTo(BigDecimal.ZERO) == 0) {
-            System.out.println("No investments to withdraw.");
-            return;
-        }
-        
-        // Withdraw all investments
-        BigDecimal amountWithdrawn = currentUser.getInvestmentAccount().withdrawAllInvestments();
-        
-        System.out.println("\nSuccessfully withdrew all investments!");
-        System.out.println("Amount returned to investment account: $" + formatCurrency(amountWithdrawn));
-        System.out.println("New investment account balance: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
-        
-        // Verify funds are cleared
-        System.out.println("\nFund balances after withdrawal:");
-        for (Fund fund : Fund.values()) {
-            BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
-            System.out.println("  " + fund + ": $" + formatCurrency(fundAmount));
-        }
+        currentUser.getInvestmentAccount().withdrawAllInvestments();
+        System.out.println("All investments have been withdrawn and added to your investment account balance.");
     }
 }
