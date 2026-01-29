@@ -1,5 +1,3 @@
-package bankingApp.model;
-
 import java.math.BigDecimal;
 
 /**

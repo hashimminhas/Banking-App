@@ -1,6 +1,3 @@
-package bankingApp.model;
-
-import bankingApp.exception.InvalidAmountException;
 import java.math.BigDecimal;
 
 /**

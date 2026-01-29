@@ -1,5 +1,3 @@
-package bankingApp.exception;
-
 /**
  * Custom exception for invalid amount operations
  * Phase 3: Exception handling for deposit/withdrawal validation
