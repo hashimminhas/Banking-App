@@ -1,25 +1,42 @@
 package bankingApp.service;
 
-import java.util.Arrays;
-import java.util.List;
+import bankingApp.model.User;
+import bankingApp.model.Fund;
+import bankingApp.exception.InvalidAmountException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
  * Banking Service handles all CLI interactions and banking logic
- * Phase 1: Implements login system and basic menu display
+ * Phase 4: Complete implementation with core banking operations
  */
 public class BankingService {
     
     private final Scanner scanner;
-    private final List<String> validUsers;
-    private String currentUser;
+    private final Map<String, User> users;
+    private User currentUser;
     private boolean isLoggedIn;
     
     public BankingService(Scanner scanner) {
         this.scanner = scanner;
-        this.validUsers = Arrays.asList("Alice", "Bob", "Charlie", "Diana");
-        this.isLoggedIn = false;
+        this.users = new HashMap<>();
         this.currentUser = null;
+        this.isLoggedIn = false;
+        
+        // Initialize all 4 users with $1000 cash each
+        initializeUsers();
+    }
+    
+    /**
+     * Initialize the 4 users for the banking system
+     */
+    private void initializeUsers() {
+        users.put("Alice", new User("Alice"));
+        users.put("Bob", new User("Bob"));
+        users.put("Charlie", new User("Charlie"));
+        users.put("Diana", new User("Diana"));
     }
     
     /**
@@ -57,8 +74,8 @@ public class BankingService {
         
         String username = scanner.nextLine().trim();
         
-        if (validUsers.contains(username)) {
-            currentUser = username;
+        if (users.containsKey(username)) {
+            currentUser = users.get(username);
             isLoggedIn = true;
             System.out.println("Welcome, " + username + "!");
             return true;
@@ -118,13 +135,13 @@ public class BankingService {
     private boolean handleMenuChoice(int choice) {
         switch (choice) {
             case 1:
-                System.out.println("Show balance - Coming soon!");
+                showBalance();
                 break;
             case 2:
-                System.out.println("Deposit money - Coming soon!");
+                depositMoney();
                 break;
             case 3:
-                System.out.println("Withdraw money - Coming soon!");
+                withdrawMoney();
                 break;
             case 4:
                 System.out.println("Send money to a person - Coming soon!");
@@ -151,10 +168,118 @@ public class BankingService {
     }
     
     /**
+     * Menu Option 1: Show Balance
+     * Displays cash, savings (with interest), investment (with gains), and fund details
+     */
+    private void showBalance() {
+        System.out.println("\n=== Account Balance for " + currentUser.getName() + " ===");
+        
+        // Calculate interest on savings FIRST
+        currentUser.getSavingsAccount().calculateInterest();
+        
+        // Calculate gains on investments FIRST  
+        currentUser.getInvestmentAccount().calculateInterest();
+        
+        // Display cash on hand
+        System.out.println("Cash on hand: $" + currentUser.getCash());
+        
+        // Display savings account balance
+        System.out.println("Savings account balance: $" + currentUser.getSavingsAccount().getBalance());
+        
+        // Display investment account balance
+        System.out.println("Investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+        
+        // Display total investments in each fund
+        System.out.println("\nInvestment Fund Details:");
+        for (Fund fund : Fund.values()) {
+            BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
+            System.out.println("  " + fund + ": $" + fundAmount);
+        }
+        
+        // Display total investment value
+        BigDecimal totalInvestments = currentUser.getInvestmentAccount().getTotalInvestmentValue();
+        System.out.println("Total investments: $" + totalInvestments);
+    }
+    
+    /**
+     * Menu Option 2: Deposit Money
+     * Transfers money from cash to savings account
+     */
+    private void depositMoney() {
+        System.out.println("\n=== Deposit Money ===");
+        System.out.println("Current cash on hand: $" + currentUser.getCash());
+        
+        System.out.print("Enter amount to deposit: $");
+        
+        // Handle EOF gracefully
+        if (!scanner.hasNextLine()) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        
+        String input = scanner.nextLine().trim();
+        
+        try {
+            BigDecimal amount = new BigDecimal(input);
+            
+            // Attempt to deposit cash to savings
+            boolean success = currentUser.depositCashToSavings(amount);
+            
+            if (success) {
+                System.out.println("Successfully deposited $" + amount + " to your savings account.");
+                System.out.println("New cash balance: $" + currentUser.getCash());
+                System.out.println("New savings balance: $" + currentUser.getSavingsAccount().getBalance());
+            } else {
+                System.out.println("Deposit failed. Please ensure you have sufficient cash and enter a positive amount.");
+            }
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid amount. Please enter a valid number.");
+        }
+    }
+    
+    /**
+     * Menu Option 3: Withdraw Money  
+     * Transfers money from savings to cash
+     */
+    private void withdrawMoney() {
+        System.out.println("\n=== Withdraw Money ===");
+        System.out.println("Current savings balance: $" + currentUser.getSavingsAccount().getBalance());
+        
+        System.out.print("Enter amount to withdraw: $");
+        
+        // Handle EOF gracefully
+        if (!scanner.hasNextLine()) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        
+        String input = scanner.nextLine().trim();
+        
+        try {
+            BigDecimal amount = new BigDecimal(input);
+            
+            // Attempt to withdraw from savings to cash
+            boolean success = currentUser.withdrawSavingsToCash(amount);
+            
+            if (success) {
+                System.out.println("Successfully withdrew $" + amount + " from your savings account.");
+                System.out.println("New savings balance: $" + currentUser.getSavingsAccount().getBalance());
+                System.out.println("New cash balance: $" + currentUser.getCash());
+            } else {
+                System.out.println("Withdrawal failed. Please ensure you have sufficient funds and enter a positive amount.");
+            }
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid amount. Please enter a valid number.");
+        }
+    }
+    
+    /**
      * Handle user logout
      */
     private void logout() {
-        System.out.println("Goodbye, " + currentUser + "!");
+        System.out.println("Goodbye, " + currentUser.getName() + "!");
         currentUser = null;
         isLoggedIn = false;
     }
