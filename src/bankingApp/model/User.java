@@ -1,10 +1,11 @@
 package bankingApp.model;
 
+import bankingApp.exception.InvalidAmountException;
 import java.math.BigDecimal;
 
 /**
  * User class representing a bank customer
- * Phase 2: Complete implementation with cash and account management
+ * Phase 3: Added exception handling for deposit/withdraw operations
  */
 public class User {
     private String name;
@@ -45,12 +46,16 @@ public class User {
      * @return true if deposit successful, false otherwise
      */
     public boolean depositCashToSavings(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) > 0 && cash.compareTo(amount) >= 0) {
-            cash = cash.subtract(amount);
-            savingsAccount.deposit(amount);
-            return true;
+        try {
+            if (amount.compareTo(BigDecimal.ZERO) > 0 && cash.compareTo(amount) >= 0) {
+                cash = cash.subtract(amount);
+                savingsAccount.deposit(amount);
+                return true;
+            }
+            return false;
+        } catch (InvalidAmountException e) {
+            return false;
         }
-        return false;
     }
     
     /**
@@ -59,11 +64,13 @@ public class User {
      * @return true if withdrawal successful, false otherwise
      */
     public boolean withdrawSavingsToCash(BigDecimal amount) {
-        if (savingsAccount.withdraw(amount)) {
+        try {
+            savingsAccount.withdraw(amount);
             cash = cash.add(amount);
             return true;
+        } catch (InvalidAmountException e) {
+            return false;
         }
-        return false;
     }
     
     @Override

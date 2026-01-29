@@ -54,13 +54,17 @@ public class InvestmentAccount extends Account {
      * @return true if investment successful, false otherwise
      */
     public boolean investInFund(Fund fund, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) > 0 && balance.compareTo(amount) >= 0) {
-            balance = balance.subtract(amount);
-            BigDecimal currentInvestment = investments.get(fund);
-            investments.put(fund, currentInvestment.add(amount));
-            return true;
+        try {
+            if (amount.compareTo(BigDecimal.ZERO) > 0 && balance.compareTo(amount) >= 0) {
+                balance = balance.subtract(amount);
+                BigDecimal currentInvestment = investments.get(fund);
+                investments.put(fund, currentInvestment.add(amount));
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
     
     /**
@@ -68,14 +72,18 @@ public class InvestmentAccount extends Account {
      * @return Total amount withdrawn from investments
      */
     public BigDecimal withdrawAllInvestments() {
-        BigDecimal totalWithdrawn = BigDecimal.ZERO;
-        for (Map.Entry<Fund, BigDecimal> entry : investments.entrySet()) {
-            BigDecimal amount = entry.getValue();
-            totalWithdrawn = totalWithdrawn.add(amount);
-            investments.put(entry.getKey(), BigDecimal.ZERO);
+        try {
+            BigDecimal totalWithdrawn = BigDecimal.ZERO;
+            for (Map.Entry<Fund, BigDecimal> entry : investments.entrySet()) {
+                BigDecimal amount = entry.getValue();
+                totalWithdrawn = totalWithdrawn.add(amount);
+                investments.put(entry.getKey(), BigDecimal.ZERO);
+            }
+            balance = balance.add(totalWithdrawn);
+            return totalWithdrawn;
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
         }
-        balance = balance.add(totalWithdrawn);
-        return totalWithdrawn;
     }
     
     /**

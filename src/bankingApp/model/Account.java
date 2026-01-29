@@ -1,10 +1,11 @@
 package bankingApp.model;
 
+import bankingApp.exception.InvalidAmountException;
 import java.math.BigDecimal;
 
 /**
  * Abstract base class for all account types
- * Phase 2: Complete implementation with interest calculation and account type methods
+ * Phase 3: Added validation and custom exception handling
  */
 public abstract class Account {
     protected BigDecimal balance;
@@ -39,23 +40,27 @@ public abstract class Account {
     /**
      * Deposit money into the account
      * @param amount Amount to deposit
+     * @throws InvalidAmountException if amount is not positive
      */
-    public void deposit(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) > 0) {
-            balance = balance.add(amount);
+    public void deposit(BigDecimal amount) throws InvalidAmountException {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Amount must be positive");
         }
+        balance = balance.add(amount);
     }
     
     /**
      * Withdraw money from the account
      * @param amount Amount to withdraw
-     * @return true if withdrawal successful, false otherwise
+     * @throws InvalidAmountException if amount is not positive or exceeds balance
      */
-    public boolean withdraw(BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) > 0 && balance.compareTo(amount) >= 0) {
-            balance = balance.subtract(amount);
-            return true;
+    public void withdraw(BigDecimal amount) throws InvalidAmountException {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Amount must be positive");
         }
-        return false;
+        if (amount.compareTo(balance) > 0) {
+            throw new InvalidAmountException("Insufficient funds");
+        }
+        balance = balance.subtract(amount);
     }
 }
