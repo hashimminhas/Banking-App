@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 public class User {
     private String name;
     private BigDecimal cash;
-    private SavingsAccount savingsAccount;
-    private InvestmentAccount investmentAccount;
+    private final SavingsAccount savingsAccount;
+    private final InvestmentAccount investmentAccount;
     
     public User(String name) {
         this.name = name;

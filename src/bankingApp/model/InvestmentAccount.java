@@ -9,7 +9,7 @@ import java.util.Map;
  * Phase 2: Complete implementation with fund management and interest calculation
  */
 public class InvestmentAccount extends Account {
-    private Map<Fund, BigDecimal> investments;
+    private final Map<Fund, BigDecimal> investments;
     
     public InvestmentAccount() {
         super();

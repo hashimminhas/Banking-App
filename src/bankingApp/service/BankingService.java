@@ -4,6 +4,7 @@ import bankingApp.model.User;
 import bankingApp.model.Fund;
 import bankingApp.exception.InvalidAmountException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,16 +18,23 @@ public class BankingService {
     private final Scanner scanner;
     private final Map<String, User> users;
     private User currentUser;
-    private boolean isLoggedIn;
+    private final DecimalFormat currencyFormatter;
     
     public BankingService(Scanner scanner) {
         this.scanner = scanner;
         this.users = new HashMap<>();
         this.currentUser = null;
-        this.isLoggedIn = false;
+        this.currencyFormatter = new DecimalFormat("#0.00");
         
         // Initialize all 4 users with $1000 cash each
         initializeUsers();
+    }
+    
+    /**
+     * Format BigDecimal amount to currency string with 2 decimal places
+     */
+    private String formatCurrency(BigDecimal amount) {
+        return currencyFormatter.format(amount);
     }
     
     /**
@@ -95,7 +103,6 @@ public class BankingService {
                             loggedIn = false;
                             System.out.println("Logged out successfully.");
                             currentUser = null;
-                            isLoggedIn = false;
                             break;
                         case 9: // Exit
                             loggedIn = false;
@@ -130,7 +137,6 @@ public class BankingService {
             
             if (users.containsKey(username)) {
                 currentUser = users.get(username);
-                isLoggedIn = true;
                 System.out.println("Welcome, " + username + "!");
                 return true;
             } else {
@@ -171,24 +177,24 @@ public class BankingService {
         currentUser.getInvestmentAccount().calculateInterest();
         
         // Display cash on hand
-        System.out.println("Cash on hand: $" + currentUser.getCash());
+        System.out.println("Cash on hand: $" + formatCurrency(currentUser.getCash()));
         
         // Display savings account balance
-        System.out.println("Savings account balance: $" + currentUser.getSavingsAccount().getBalance());
+        System.out.println("Savings account balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
         
         // Display investment account balance
-        System.out.println("Investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+        System.out.println("Investment account balance: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
         
         // Display total investments in each fund
         System.out.println("\nInvestment Fund Details:");
         for (Fund fund : Fund.values()) {
             BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
-            System.out.println("  " + fund + ": $" + fundAmount);
+            System.out.println("  " + fund + ": $" + formatCurrency(fundAmount));
         }
         
         // Display total investment value
         BigDecimal totalInvestments = currentUser.getInvestmentAccount().getTotalInvestmentValue();
-        System.out.println("Total investments: $" + totalInvestments);
+        System.out.println("Total investments: $" + formatCurrency(totalInvestments));
     }
     
     /**
@@ -197,7 +203,7 @@ public class BankingService {
      */
     private void depositMoney() {
         System.out.println("\n=== Deposit Money ===");
-        System.out.println("Current cash on hand: $" + currentUser.getCash());
+        System.out.println("Current cash on hand: $" + formatCurrency(currentUser.getCash()));
         
         System.out.print("Enter amount to deposit: $");
         
@@ -216,9 +222,9 @@ public class BankingService {
             boolean success = currentUser.depositCashToSavings(amount);
             
             if (success) {
-                System.out.println("Successfully deposited $" + amount + " to your savings account.");
-                System.out.println("New cash balance: $" + currentUser.getCash());
-                System.out.println("New savings balance: $" + currentUser.getSavingsAccount().getBalance());
+                System.out.println("Successfully deposited $" + formatCurrency(amount) + " to your savings account.");
+                System.out.println("New cash balance: $" + formatCurrency(currentUser.getCash()));
+                System.out.println("New savings balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
             } else {
                 System.out.println("Deposit failed. Please ensure you have sufficient cash and enter a positive amount.");
             }
@@ -234,7 +240,7 @@ public class BankingService {
      */
     private void withdrawMoney() {
         System.out.println("\n=== Withdraw Money ===");
-        System.out.println("Current savings balance: $" + currentUser.getSavingsAccount().getBalance());
+        System.out.println("Current savings balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
         
         System.out.print("Enter amount to withdraw: $");
         
@@ -253,9 +259,9 @@ public class BankingService {
             boolean success = currentUser.withdrawSavingsToCash(amount);
             
             if (success) {
-                System.out.println("Successfully withdrew $" + amount + " from your savings account.");
-                System.out.println("New savings balance: $" + currentUser.getSavingsAccount().getBalance());
-                System.out.println("New cash balance: $" + currentUser.getCash());
+                System.out.println("Successfully withdrew $" + formatCurrency(amount) + " from your savings account.");
+                System.out.println("New savings balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
+                System.out.println("New cash balance: $" + formatCurrency(currentUser.getCash()));
             } else {
                 System.out.println("Withdrawal failed. Please ensure you have sufficient funds and enter a positive amount.");
             }
@@ -304,7 +310,7 @@ public class BankingService {
         User recipient = users.get(recipientName);
         
         // Show current savings balance
-        System.out.println("Your current savings balance: $" + currentUser.getSavingsAccount().getBalance());
+        System.out.println("Your current savings balance: $" + formatCurrency(currentUser.getSavingsAccount().getBalance()));
         System.out.print("Enter amount to send: $");
         
         // Handle EOF gracefully
@@ -386,7 +392,7 @@ public class BankingService {
         }
         
         // Show source account balance
-        System.out.println("Current " + sourceAccount + " account balance: $" + sourceBalance);
+        System.out.println("Current " + sourceAccount + " account balance: $" + formatCurrency(sourceBalance));
         System.out.print("Enter amount to transfer: $");
         
         // Handle EOF gracefully
@@ -422,11 +428,11 @@ public class BankingService {
                     currentUser.getSavingsAccount().deposit(amount);
                 }
                 
-                System.out.println("Successfully transferred $" + amount + " from " + sourceAccount + " to " + destinationAccount + ".");
+                System.out.println("Successfully transferred $" + formatCurrency(amount) + " from " + sourceAccount + " to " + destinationAccount + ".");
                 System.out.println("New " + sourceAccount + " balance: $" + 
-                    (fromSavingsToInvestment ? currentUser.getSavingsAccount().getBalance() : currentUser.getInvestmentAccount().getBalance()));
+                    formatCurrency(fromSavingsToInvestment ? currentUser.getSavingsAccount().getBalance() : currentUser.getInvestmentAccount().getBalance()));
                 System.out.println("New " + destinationAccount + " balance: $" + 
-                    (fromSavingsToInvestment ? currentUser.getInvestmentAccount().getBalance() : currentUser.getSavingsAccount().getBalance()));
+                    formatCurrency(fromSavingsToInvestment ? currentUser.getInvestmentAccount().getBalance() : currentUser.getSavingsAccount().getBalance()));
                 
             } catch (InvalidAmountException e) {
                 System.out.println("Transfer failed: " + e.getMessage());
@@ -443,7 +449,7 @@ public class BankingService {
      */
     private void investInFunds() {
         System.out.println("\n=== Invest in Funds ===");
-        System.out.println("Investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+        System.out.println("Investment account balance: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
         
         // Show available funds
         System.out.println("\nAvailable funds:");
@@ -507,10 +513,10 @@ public class BankingService {
             boolean success = currentUser.getInvestmentAccount().investInFund(selectedFund, amount);
             
             if (success) {
-                System.out.println("Successfully invested $" + amount + " in " + selectedFund + ".");
-                System.out.println("New investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+                System.out.println("Successfully invested $" + formatCurrency(amount) + " in " + selectedFund + ".");
+                System.out.println("New investment account balance: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
                 System.out.println("Amount in " + selectedFund + ": $" + 
-                    currentUser.getInvestmentAccount().getInvestmentInFund(selectedFund));
+                    formatCurrency(currentUser.getInvestmentAccount().getInvestmentInFund(selectedFund)));
             } else {
                 System.out.println("Investment failed. Please try again.");
             }
@@ -536,11 +542,11 @@ public class BankingService {
         
         for (Fund fund : Fund.values()) {
             BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
-            System.out.println("  " + fund + ": $" + fundAmount);
+            System.out.println("  " + fund + ": $" + formatCurrency(fundAmount));
             totalFundValue = totalFundValue.add(fundAmount);
         }
         
-        System.out.println("Total fund value: $" + totalFundValue);
+        System.out.println("Total fund value: $" + formatCurrency(totalFundValue));
         
         if (totalFundValue.compareTo(BigDecimal.ZERO) == 0) {
             System.out.println("No investments to withdraw.");
@@ -551,14 +557,14 @@ public class BankingService {
         BigDecimal amountWithdrawn = currentUser.getInvestmentAccount().withdrawAllInvestments();
         
         System.out.println("\nSuccessfully withdrew all investments!");
-        System.out.println("Amount returned to investment account: $" + amountWithdrawn);
-        System.out.println("New investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+        System.out.println("Amount returned to investment account: $" + formatCurrency(amountWithdrawn));
+        System.out.println("New investment account balance: $" + formatCurrency(currentUser.getInvestmentAccount().getBalance()));
         
         // Verify funds are cleared
         System.out.println("\nFund balances after withdrawal:");
         for (Fund fund : Fund.values()) {
             BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
-            System.out.println("  " + fund + ": $" + fundAmount);
+            System.out.println("  " + fund + ": $" + formatCurrency(fundAmount));
         }
     }
 }

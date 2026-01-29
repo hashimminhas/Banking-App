@@ -11,15 +11,12 @@ public class BankingApp {
     
     public static void main(String[] args) {
         // Create single Scanner instance for entire application lifecycle
-        Scanner scanner = new Scanner(System.in);
-        
-        // Create banking service instance and pass scanner
-        BankingService bankingService = new BankingService(scanner);
-        
-        // Start the banking application
-        bankingService.run();
-        
-        // Close scanner when application ends
-        scanner.close();
+        try (Scanner scanner = new Scanner(System.in)) {
+            // Create banking service instance and pass scanner
+            BankingService bankingService = new BankingService(scanner);
+            
+            // Start the banking application
+            bankingService.run();
+        }
     }
 }
