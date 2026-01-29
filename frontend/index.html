@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Green Day Bank</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Login Section -->
+    <div id="loginSection" class="login-section">
+      <div class="login-card">
+        <h1>🏦 Green Day Bank</h1>
+        <p>Please select a user to login</p>
+        <select id="userSelect" class="user-select">
+          <option value="">-- Select User --</option>
+        </select>
+        <button id="loginBtn" class="btn btn-primary" disabled>Login</button>
+      </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="dashboard-section" style="display: none;">
+      <header class="app-header">
+        <h1>🏦 Green Day Bank</h1>
+        <div class="user-info">
+          <span id="currentUser"></span>
+          <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+        </div>
+      </header>
+
+      <div class="container">
+        <!-- Balance Cards -->
+        <section class="balance-section">
+          <h2>Account Balances</h2>
+          <div class="balance-cards">
+            <div class="card">
+              <h3>💵 Cash on Hand</h3>
+              <div class="amount" id="cashAmount">$0.00</div>
+            </div>
+            <div class="card">
+              <h3>🏦 Savings Account</h3>
+              <div class="amount" id="savingsAmount">$0.00</div>
+            </div>
+            <div class="card">
+              <h3>📈 Investment Account</h3>
+              <div class="amount" id="investmentAmount">$0.00</div>
+            </div>
+          </div>
+          
+          <h3>Investment Funds</h3>
+          <table class="funds-table">
+            <thead>
+              <tr>
+                <th>Fund</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="fundsTableBody">
+              <tr><td>LOW_RISK</td><td>$0.00</td></tr>
+              <tr><td>MEDIUM_RISK</td><td>$0.00</td></tr>
+              <tr><td>HIGH_RISK</td><td>$0.00</td></tr>
+            </tbody>
+          </table>
+          
+          <button id="refreshBalanceBtn" class="btn btn-primary">🔄 Refresh Balance</button>
+        </section>
+
+        <!-- Actions Section -->
+        <section class="actions-section">
+          <h2>Actions</h2>
+          
+          <div class="actions-grid">
+            <!-- Deposit -->
+            <div class="card action-card">
+              <h3>💰 Deposit to Savings</h3>
+              <form id="depositForm">
+                <input type="number" id="depositAmount" placeholder="Amount" step="0.01" min="0.01" required>
+                <button type="submit" class="btn btn-primary">Deposit</button>
+              </form>
+            </div>
+
+            <!-- Withdraw -->
+            <div class="card action-card">
+              <h3>💸 Withdraw from Savings</h3>
+              <form id="withdrawForm">
+                <input type="number" id="withdrawAmount" placeholder="Amount" step="0.01" min="0.01" required>
+                <button type="submit" class="btn btn-primary">Withdraw</button>
+              </form>
+            </div>
+
+            <!-- Send Money -->
+            <div class="card action-card">
+              <h3>📤 Send Money</h3>
+              <form id="sendForm">
+                <select id="sendRecipient" required>
+                  <option value="">-- Select Recipient --</option>
+                </select>
+                <input type="number" id="sendAmount" placeholder="Amount" step="0.01" min="0.01" required>
+                <button type="submit" class="btn btn-primary">Send</button>
+              </form>
+            </div>
+
+            <!-- Transfer -->
+            <div class="card action-card">
+              <h3>🔄 Transfer Between Accounts</h3>
+              <form id="transferForm">
+                <select id="transferDirection" required>
+                  <option value="">-- Select Direction --</option>
+                  <option value="SAVINGS_TO_INVESTMENT">Savings → Investment</option>
+                  <option value="INVESTMENT_TO_SAVINGS">Investment → Savings</option>
+                </select>
+                <input type="number" id="transferAmount" placeholder="Amount" step="0.01" min="0.01" required>
+                <button type="submit" class="btn btn-primary">Transfer</button>
+              </form>
+            </div>
+
+            <!-- Invest -->
+            <div class="card action-card">
+              <h3>📊 Invest in Fund</h3>
+              <form id="investForm">
+                <select id="investFund" required>
+                  <option value="">-- Select Fund --</option>
+                  <option value="LOW_RISK">Low Risk (2%)</option>
+                  <option value="MEDIUM_RISK">Medium Risk (5%)</option>
+                  <option value="HIGH_RISK">High Risk (10%)</option>
+                </select>
+                <input type="number" id="investAmount" placeholder="Amount" step="0.01" min="0.01" required>
+                <button type="submit" class="btn btn-primary">Invest</button>
+              </form>
+            </div>
+
+            <!-- Withdraw Investments -->
+            <div class="card action-card">
+              <h3>💼 Withdraw All Investments</h3>
+              <p class="small-text">Move all fund holdings back to investment account</p>
+              <button id="withdrawInvestmentsBtn" class="btn btn-warning">Withdraw All</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Activity Log -->
+        <section class="activity-section">
+          <h2>Activity Log</h2>
+          <div class="activity-log" id="activityLog">
+            <p class="log-empty">No activities yet</p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
