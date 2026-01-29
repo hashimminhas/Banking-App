@@ -40,7 +40,7 @@ public class BankingController {
             }
             
             BalanceResponse response = bankingService.getBalance(request.getUser());
-            ctx.json(response);
+            ctx.status(200).json(response);
             
         } catch (Exception e) {
             ctx.status(500).json(new ErrorResponse("INTERNAL_ERROR", e.getMessage()));
