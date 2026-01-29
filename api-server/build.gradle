@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.greendaybank'
+version = '1.0.0'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Javalin web framework
+    implementation 'io.javalin:javalin:5.6.3'
+    
+    // Jackson for JSON
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1'
+    
+    // SLF4J simple logger
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+    
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.greendaybank.ApiServer'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Task to run the server
+task runServer(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.greendaybank.ApiServer'
+}
