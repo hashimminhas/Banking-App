@@ -147,13 +147,13 @@ public class BankingService {
                 sendMoney();
                 break;
             case 5:
-                System.out.println("Invest in funds - Coming soon!");
+                investInFunds();
                 break;
             case 6:
                 transferBetweenAccounts();
                 break;
             case 7:
-                System.out.println("Withdraw all investments - Coming soon!");
+                withdrawAllInvestments();
                 break;
             case 8:
                 logout();
@@ -444,6 +444,131 @@ public class BankingService {
             
         } catch (NumberFormatException e) {
             System.out.println("Invalid amount. Please enter a valid number.");
+        }
+    }
+    
+    /**
+     * Menu Option 5: Invest in Funds
+     * Allows user to invest money from investment account into specific funds
+     */
+    private void investInFunds() {
+        System.out.println("\n=== Invest in Funds ===");
+        System.out.println("Investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+        
+        // Show available funds
+        System.out.println("\nAvailable funds:");
+        System.out.println("1. LOW_RISK (2%)");
+        System.out.println("2. MEDIUM_RISK (5%)");
+        System.out.println("3. HIGH_RISK (10%)");
+        
+        System.out.print("Select fund (1-3): ");
+        
+        // Handle EOF gracefully
+        if (!scanner.hasNextLine()) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        
+        String fundChoice = scanner.nextLine().trim();
+        
+        Fund selectedFund;
+        switch (fundChoice) {
+            case "1":
+                selectedFund = Fund.LOW_RISK;
+                break;
+            case "2":
+                selectedFund = Fund.MEDIUM_RISK;
+                break;
+            case "3":
+                selectedFund = Fund.HIGH_RISK;
+                break;
+            default:
+                System.out.println("Invalid fund selection. Please choose 1, 2, or 3.");
+                return;
+        }
+        
+        System.out.println("Selected: " + selectedFund);
+        System.out.print("Enter amount to invest: $");
+        
+        // Handle EOF gracefully
+        if (!scanner.hasNextLine()) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        
+        String input = scanner.nextLine().trim();
+        
+        try {
+            BigDecimal amount = new BigDecimal(input);
+            
+            // Validate amount is positive
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("Amount must be positive.");
+                return;
+            }
+            
+            // Check if user has sufficient funds in investment account
+            if (currentUser.getInvestmentAccount().getBalance().compareTo(amount) < 0) {
+                System.out.println("Insufficient funds in investment account.");
+                return;
+            }
+            
+            // Perform the investment
+            boolean success = currentUser.getInvestmentAccount().investInFund(selectedFund, amount);
+            
+            if (success) {
+                System.out.println("Successfully invested $" + amount + " in " + selectedFund + ".");
+                System.out.println("New investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+                System.out.println("Amount in " + selectedFund + ": $" + 
+                    currentUser.getInvestmentAccount().getInvestmentInFund(selectedFund));
+            } else {
+                System.out.println("Investment failed. Please try again.");
+            }
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid amount. Please enter a valid number.");
+        }
+    }
+    
+    /**
+     * Menu Option 7: Withdraw All Investments
+     * Calculates total fund value with appreciation and moves all back to investment account
+     */
+    private void withdrawAllInvestments() {
+        System.out.println("\n=== Withdraw All Investments ===");
+        
+        // Calculate appreciation on all funds first
+        currentUser.getInvestmentAccount().calculateInterest();
+        
+        // Show current fund breakdown
+        System.out.println("Current fund investments:");
+        BigDecimal totalFundValue = BigDecimal.ZERO;
+        
+        for (Fund fund : Fund.values()) {
+            BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
+            System.out.println("  " + fund + ": $" + fundAmount);
+            totalFundValue = totalFundValue.add(fundAmount);
+        }
+        
+        System.out.println("Total fund value: $" + totalFundValue);
+        
+        if (totalFundValue.compareTo(BigDecimal.ZERO) == 0) {
+            System.out.println("No investments to withdraw.");
+            return;
+        }
+        
+        // Withdraw all investments
+        BigDecimal amountWithdrawn = currentUser.getInvestmentAccount().withdrawAllInvestments();
+        
+        System.out.println("\nSuccessfully withdrew all investments!");
+        System.out.println("Amount returned to investment account: $" + amountWithdrawn);
+        System.out.println("New investment account balance: $" + currentUser.getInvestmentAccount().getBalance());
+        
+        // Verify funds are cleared
+        System.out.println("\nFund balances after withdrawal:");
+        for (Fund fund : Fund.values()) {
+            BigDecimal fundAmount = currentUser.getInvestmentAccount().getInvestmentInFund(fund);
+            System.out.println("  " + fund + ": $" + fundAmount);
         }
     }
     
