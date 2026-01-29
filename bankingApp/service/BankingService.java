@@ -1,10 +1,9 @@
 package bankingApp.service;
 
-import bankingApp.model.User;
-import bankingApp.model.Fund;
 import bankingApp.exception.InvalidAmountException;
+import bankingApp.model.Fund;
+import bankingApp.model.User;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,18 +16,16 @@ public class BankingService {
     private final Scanner scanner;
     private final Map<String, User> users;
     private User currentUser;
-    private final DecimalFormat currencyFormatter;
     
     public BankingService(Scanner scanner) {
         this.scanner = scanner;
         this.users = new LinkedHashMap<>();
         this.currentUser = null;
-        this.currencyFormatter = new DecimalFormat("#0.00");
         initializeUsers();
     }
     
     private String formatCurrency(BigDecimal amount) {
-        return currencyFormatter.format(amount);
+        return String.format("%.2f", amount);
     }
     
     private void initializeUsers() {
