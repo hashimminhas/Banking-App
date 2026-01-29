@@ -24,7 +24,7 @@ public class BankingService {
         this.scanner = scanner;
         this.users = new HashMap<>();
         this.currentUser = null;
-        this.currencyFormatter = new DecimalFormat("#0.00");
+        this.currencyFormatter = new DecimalFormat("#0.##");
         
         // Initialize all 4 users with $1000 cash each
         initializeUsers();
@@ -151,7 +151,7 @@ public class BankingService {
      * Display the main banking menu
      */
     private void displayMenu() {
-        System.out.println("\n --- Banking App Menu ---");
+        System.out.println("\n--- Menu ---");
         System.out.println("1. Show balance");
         System.out.println("2. Deposit money");
         System.out.println("3. Withdraw money");
@@ -168,7 +168,7 @@ public class BankingService {
      * Displays cash, savings (with interest), investment (with gains), and fund details
      */
     private void showBalance() {
-        System.out.println("\n=== Account Balance for " + currentUser.getName() + " ===");
+        System.out.println("\n=== Balance ===");
         
         // Calculate interest on savings FIRST
         currentUser.getSavingsAccount().calculateInterest();

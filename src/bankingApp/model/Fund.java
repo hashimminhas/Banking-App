@@ -23,6 +23,8 @@ public enum Fund {
     
     @Override
     public String toString() {
-        return name() + " (" + appreciationRate.multiply(new BigDecimal("100")) + "%)";
+        // Format as whole number percentage (e.g., "LOW_RISK (2%)")
+        int percentage = appreciationRate.multiply(new BigDecimal("100")).intValue();
+        return name() + " (" + percentage + "%)";
     }
 }
