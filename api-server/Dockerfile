@@ -20,7 +20,7 @@ RUN ./gradlew dependencies --no-daemon
 COPY src src
 
 # Build the application
-RUN ./gradlew build --no-daemon -x test
+RUN ./gradlew clean build --no-daemon -x test
 
 # Runtime stage
 FROM eclipse-temurin:21-jre
@@ -28,7 +28,7 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy the built jar from build stage
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/green-day-bank-api-1.0.0.jar app.jar
 
 # Expose the port the app runs on
 EXPOSE 7070

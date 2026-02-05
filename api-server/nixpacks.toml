@@ -4,8 +4,9 @@ nixPkgs = ['gradle', 'jdk21']
 [phases.build]
 cmds = [
   'chmod +x gradlew',
-  './gradlew build -x test'
+  './gradlew clean build -x test',
+  'ls -la build/libs/'
 ]
 
 [start]
-cmd = 'java -jar build/libs/*.jar'
+cmd = 'java -jar build/libs/green-day-bank-api-1.0.0.jar'

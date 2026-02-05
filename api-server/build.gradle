@@ -35,6 +35,19 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// Create fat JAR with all dependencies
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'com.greendaybank.ApiServer'
+        )
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 // Task to run the server
 task runServer(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
