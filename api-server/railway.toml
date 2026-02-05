@@ -1,0 +1,7 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "java -jar build/libs/green-day-bank-api-1.0.0.jar"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
