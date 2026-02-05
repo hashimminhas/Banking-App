@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ['gradle', 'jdk21']
+
+[phases.build]
+cmds = [
+  'chmod +x gradlew',
+  './gradlew build -x test'
+]
+
+[start]
+cmd = 'java -jar build/libs/*.jar'
